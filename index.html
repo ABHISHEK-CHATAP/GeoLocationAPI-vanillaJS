@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      body {
+        background: linear-gradient(
+          90deg,
+          rgba(2, 0, 36, 1) 0%,
+          rgba(9, 9, 121, 1) 35%,
+          rgba(0, 212, 255, 1) 100%
+        );
+        color: white;
+      }
+      .data-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 96vh;
+      }
+      .geoBtn {
+        padding: 15px 30px;
+        border-radius: 30px;
+        font-size: 19px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        border: none;
+        outline: none;
+        transition: 0.7s ease-in-out;
+      }
+      .geoBtn:hover {
+        background-color: rgb(75, 72, 72);
+        color: rgb(255, 255, 255);
+      }
+      .FullAddress {
+        font-size: 19px;
+      }
+      .formatedAdsress {
+        font-size: 19px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="data-section">
+      <button class="geoBtn">Show user loaction</button>
+      <p class="showDetails">User Location Details</p>
+      <p class="FullAddress">Full Address</p>
+      <p class="formatedAdsress">Formated Address</p>
+    </div>
+    <script>
+      const showDetails = document.querySelector(".showDetails");
+      const FullAddress = document.querySelector(".FullAddress");
+      const formatedAdsress = document.querySelector(".formatedAdsress");
+
+      // console.log(navigator.geolocation.getCurrentPosition())
+
+      let apiKey = "65ea398469f54922bb96feb56f45a0f3";
+      let apiEndPoint = "https://api.opencagedata.com/geocode/v1/json";
+
+      //api to get user Adress
+      const getUserCurrentAddress = async (latitude, longitude) => {
+        // console.log("fun :", latitude, longitude);
+        let query = `${latitude},${longitude}`;
+        let apiUrl = `${apiEndPoint}?key=${apiKey}&q=${query}&pretty=1`;
+        try {
+          const res = await fetch(apiUrl);
+          const data = await res.json();
+          console.log("data:", data);
+          const {
+            city="",
+            city_district = "",
+            state = "",
+            postcode,
+            country,
+          } = data.results[0].components;
+          FullAddress.textContent = `User Adress : ${city} , ${city_district} , ${state}, ${country}, ${postcode}`;
+          formatedAdsress.textContent = `User Full Address : ${data.results[0].formatted}`;
+        } catch (error) {
+          console.log("error aya :", error);
+        }
+      };
+
+      document.querySelector(".geoBtn").addEventListener("click", function () {
+        // console.log(navigator.geolocation);
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+              showDetails.textContent = `the latitude: ${latitude} and longitude: ${longitude}`;
+              // console.log("position :", position);
+              //calling a function
+              getUserCurrentAddress(latitude, longitude);
+            },
+            (error) => {
+              showDetails.textContent = error.message;
+              // console.log("err :" ,error.message)
+            }
+          );
+        }
+      });
+    </script>
+  </body>
+</html>
